@@ -62,6 +62,7 @@ scho1ar-backend/
 | `src/config.rs` | Environment variable parsing. Loads from `.env` via dotenvy. Includes Clerk JWT config. | `Config`, `ClerkConfig`, `ConfigError` |
 | `src/db.rs` | PostgreSQL connection pool setup with SQLx. | `DbPool`, `create_pool()` |
 | `src/error.rs` | Unified error handling. Implements `IntoResponse` for Axum. | `AppError`, `AppResult<T>` |
+| `src/validation.rs` | Request validation utilities with custom `ValidatedJson` extractor. | `ValidatedJson<T>` |
 
 ### Authentication
 
@@ -244,7 +245,8 @@ cargo run --bin worker   # Temporal worker
 | Database pool config | `src/db.rs:7` (`create_pool`) |
 | Environment loading | `src/config.rs:23` (`Config::from_env`) |
 | Clerk JWT config | `src/config.rs:13` (`ClerkConfig` struct) |
-| Error → HTTP response | `src/error.rs:26` (`impl IntoResponse`) |
+| Error → HTTP response | `src/error.rs:29` (`impl IntoResponse`) |
+| Request validation | `src/validation.rs:43` (`ValidatedJson` extractor) |
 | App shared state | `src/lib.rs:11` (`AppState` struct with JWKS cache) |
 | JWT validation middleware | `src/auth/middleware.rs:79` (`require_auth`) |
 | Claims extractor | `src/auth/middleware.rs:150` (`impl FromRequestParts`) |

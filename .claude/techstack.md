@@ -122,12 +122,12 @@ Technology choices and rationale for Scho1ar Backend.
 |------------|---------|--------|
 | `aws-sdk-rust` | AWS API integration | Planned |
 | `redis` | Caching layer | Planned |
-| `validator` | Request payload validation | Planned |
 
 ### Recently Implemented
 
 | Technology | Purpose | Implemented |
 |------------|---------|-------------|
+| `validator` | Request payload validation with derive macro | 2026-01-20 |
 | `jsonwebtoken` | JWT authentication (Clerk) | 2026-01-20 |
 | `reqwest` | HTTP client (JWKS fetching) | 2026-01-20 |
 | `axum-extra` | Typed header extractors | 2026-01-20 |

@@ -3,6 +3,7 @@ pub mod config;
 pub mod db;
 pub mod error;
 pub mod routes;
+pub mod validation;
 
 use auth::jwks::{create_jwks_cache, SharedJwksCache};
 use db::DbPool;
