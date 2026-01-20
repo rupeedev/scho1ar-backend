@@ -45,6 +45,7 @@ Technology choices and rationale for Scho1ar Backend.
 - `uuid` - UUID type support
 - `chrono` - DateTime type support
 - `json` - JSONB column support
+- `migrate` - Database migration support
 
 **Why SQLx?**
 - Compile-time SQL verification (catches errors before runtime)

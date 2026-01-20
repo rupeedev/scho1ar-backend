@@ -351,6 +351,44 @@ use tokio::sync::Mutex;
 
 ---
 
+## SQLx Migrations
+
+### Migration File Naming
+
+Migrations use timestamp-based naming: `YYYYMMDDHHMMSS_<description>.sql`
+
+```bash
+# Create new migration
+sqlx migrate add create_users
+
+# Creates: migrations/20260120164608_create_users.sql
+```
+
+### Audit Columns Pattern
+
+All tables should include audit columns:
+
+```sql
+CREATE TABLE my_table (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    -- ... other columns ...
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Auto-update updated_at on row changes
+SELECT create_audit_trigger('my_table');
+```
+
+### Migration Best Practices
+
+1. **Idempotent operations** - Use `IF NOT EXISTS` / `IF EXISTS`
+2. **No data loss** - Add columns with defaults, avoid dropping columns
+3. **Test rollbacks** - Ensure `sqlx migrate revert` works
+4. **One concern per migration** - Keep migrations focused
+
+---
+
 ## Clippy Lints
 
 Run `cargo clippy` and address all warnings. Common lints to watch for:
