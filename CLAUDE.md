@@ -70,11 +70,12 @@ main.rs → Config::from_env() → db::create_pool() → AppState → routes::cr
 | File | Purpose |
 |------|---------|
 | `src/main.rs` | Entry point, CORS setup, server startup |
-| `src/lib.rs` | `AppState` struct (holds DB pool + config) |
-| `src/config.rs` | `Config` struct loaded from env vars |
+| `src/lib.rs` | `AppState` struct (holds DB pool, config, JWKS cache) |
+| `src/config.rs` | `Config` + `ClerkConfig` loaded from env vars |
 | `src/db.rs` | SQLx PostgreSQL connection pool |
 | `src/error.rs` | `AppError` enum with `IntoResponse` impl |
-| `src/routes/mod.rs` | Router builder, nests `/api` routes |
+| `src/routes/mod.rs` | Router builder, nests `/api` routes (public + protected) |
+| `src/auth/` | Clerk JWT authentication middleware |
 
 ### Adding New Routes
 
@@ -120,6 +121,9 @@ Use `AppResult<T>` as return type. Available error variants in `src/error.rs`:
 | `NODE_ENV` | No | `development` | Environment mode |
 | `CORS_ORIGINS` | No | `http://localhost:3000,http://localhost:5173` | Comma-separated allowed origins |
 | `SQLX_OFFLINE` | No | `false` | Enable offline mode for CI builds (requires `cargo sqlx prepare`) |
+| `CLERK_ISSUER` | Yes | - | Clerk instance URL (e.g., `https://your-app.clerk.accounts.dev`) |
+| `CLERK_JWKS_URL` | No | `{CLERK_ISSUER}/.well-known/jwks.json` | Clerk JWKS endpoint |
+| `CLERK_AUDIENCE` | No | - | JWT audience validation (optional) |
 
 ## Critical: CORS with Credentials
 

@@ -21,12 +21,17 @@ scho1ar-backend/
 ├── migrations/                 # SQLx database migrations
 │   └── YYYYMMDDHHMMSS_*.sql    # Timestamped migration files
 ├── src/                        # Source code
+│   ├── auth/                   # Authentication & authorization
+│   │   ├── mod.rs              # Auth module exports
+│   │   ├── claims.rs           # JWT claims structure (Clerk-specific)
+│   │   ├── jwks.rs             # JWKS fetching and caching
+│   │   └── middleware.rs       # require_auth middleware & Claims extractor
 │   ├── routes/                 # HTTP route handlers
 │   │   ├── mod.rs              # Router configuration
 │   │   └── health.rs           # Health check endpoints
 │   ├── main.rs                 # Application entry point
 │   ├── lib.rs                  # Library root, AppState
-│   ├── config.rs               # Environment configuration
+│   ├── config.rs               # Environment configuration (includes ClerkConfig)
 │   ├── db.rs                   # Database connection pool
 │   └── error.rs                # Error types
 ├── target/                     # Build artifacts (git-ignored)
@@ -54,15 +59,24 @@ scho1ar-backend/
 
 | File | Description | Key Exports |
 |------|-------------|-------------|
-| `src/config.rs` | Environment variable parsing. Loads from `.env` via dotenvy. | `Config`, `ConfigError` |
+| `src/config.rs` | Environment variable parsing. Loads from `.env` via dotenvy. Includes Clerk JWT config. | `Config`, `ClerkConfig`, `ConfigError` |
 | `src/db.rs` | PostgreSQL connection pool setup with SQLx. | `DbPool`, `create_pool()` |
 | `src/error.rs` | Unified error handling. Implements `IntoResponse` for Axum. | `AppError`, `AppResult<T>` |
+
+### Authentication
+
+| File | Description | Key Exports |
+|------|-------------|-------------|
+| `src/auth/mod.rs` | Auth module root. Re-exports public types. | `Claims`, `require_auth`, `AuthenticatedUser` |
+| `src/auth/claims.rs` | JWT claims structure with Clerk-specific fields (user ID, org ID, roles). | `Claims` |
+| `src/auth/jwks.rs` | JWKS fetching and caching. Fetches Clerk public keys with 1-hour TTL. | `JwksCache`, `SharedJwksCache`, `create_jwks_cache()` |
+| `src/auth/middleware.rs` | Auth middleware and Claims extractor. Validates JWTs against Clerk JWKS. | `require_auth`, `AuthError`, `AuthenticatedUser` |
 
 ### Routes
 
 | File | Description | Endpoints |
 |------|-------------|-----------|
-| `src/routes/mod.rs` | Router builder. Mounts all route modules under `/api`. | `create_router()` |
+| `src/routes/mod.rs` | Router builder. Mounts all route modules under `/api`. Protected routes use `require_auth` middleware. | `create_router()`, `GET /api/`, `GET /api/me` (protected) |
 | `src/routes/health.rs` | Health and readiness probes. | `GET /health`, `GET /ready` |
 
 ---
@@ -115,11 +129,11 @@ scho1ar-backend/
 │   │   ├── api.rs                  # Axum API server (cargo run --bin api)
 │   │   └── worker.rs               # Temporal worker (cargo run --bin worker)
 │   │
-│   ├── auth/                       # Authentication & authorization
+│   ├── auth/                       # ✅ IMPLEMENTED - Authentication & authorization
 │   │   ├── mod.rs                  # Auth module exports
-│   │   ├── jwt.rs                  # JWT token handling
-│   │   ├── middleware.rs           # Auth guard middleware
-│   │   └── extractors.rs           # AuthUser extractor
+│   │   ├── claims.rs               # JWT claims (Clerk-specific)
+│   │   ├── jwks.rs                 # JWKS fetching and caching
+│   │   └── middleware.rs           # require_auth middleware + Claims extractor
 │   │
 │   ├── models/                     # Database models (shared)
 │   │   ├── mod.rs
@@ -225,17 +239,23 @@ cargo run --bin worker   # Temporal worker
 |----------------|----------|
 | Server startup | `src/main.rs:8` (`#[tokio::main]`) |
 | CORS configuration | `src/main.rs:32-54` |
-| Route registration | `src/routes/mod.rs:10` (`create_router`) |
+| Route registration | `src/routes/mod.rs:8` (`create_router`) |
+| Protected routes setup | `src/routes/mod.rs:18` (`api_routes` with middleware) |
 | Database pool config | `src/db.rs:7` (`create_pool`) |
-| Environment loading | `src/config.rs:13` (`Config::from_env`) |
+| Environment loading | `src/config.rs:23` (`Config::from_env`) |
+| Clerk JWT config | `src/config.rs:13` (`ClerkConfig` struct) |
 | Error → HTTP response | `src/error.rs:26` (`impl IntoResponse`) |
-| App shared state | `src/lib.rs:8` (`AppState` struct) |
+| App shared state | `src/lib.rs:11` (`AppState` struct with JWKS cache) |
+| JWT validation middleware | `src/auth/middleware.rs:79` (`require_auth`) |
+| Claims extractor | `src/auth/middleware.rs:150` (`impl FromRequestParts`) |
+| JWKS caching | `src/auth/jwks.rs:50` (`JwksCache`) |
 
 ### Adding new features
 
 | Task | Files to modify |
 |------|-----------------|
 | New API route | Create `src/routes/<name>.rs`, add to `src/routes/mod.rs` |
+| New protected route | Add to `protected_routes` in `src/routes/mod.rs`, use `Claims` extractor |
 | New error type | Add variant to `src/error.rs` |
 | New config option | Add field to `src/config.rs`, update `.env.example` |
 | New database table | Add migration in `migrations/`, create model in `src/models/` |

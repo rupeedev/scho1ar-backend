@@ -23,6 +23,7 @@ Technology choices and rationale for Scho1ar Backend.
 | Crate | Purpose |
 |-------|---------|
 | `axum` | HTTP routing, extractors, middleware |
+| `axum-extra` | Additional extractors (typed headers) |
 | `tower` | Service abstraction, middleware traits |
 | `tower-http` | HTTP-specific middleware (CORS, tracing) |
 
@@ -61,6 +62,19 @@ Technology choices and rationale for Scho1ar Backend.
 | `serde` | Serialization framework |
 | `serde_json` | JSON serialization |
 
+### Authentication
+
+| Crate | Purpose |
+|-------|---------|
+| `jsonwebtoken` | JWT encoding/decoding and validation (RS256, RS384, RS512) |
+| `reqwest` | HTTP client for fetching JWKS from Clerk |
+
+**Clerk JWT Integration:**
+- JWKS-based key fetching with 1-hour cache TTL
+- RSA public key validation
+- Claims extraction (user ID, organization ID, roles)
+- Middleware-based route protection
+
 ### Utilities
 
 | Crate | Purpose |
@@ -71,6 +85,7 @@ Technology choices and rationale for Scho1ar Backend.
 | `thiserror` | Derive macro for error types |
 | `tracing` | Structured logging/diagnostics |
 | `tracing-subscriber` | Log formatting and filtering |
+| `once_cell` | Lazy static initialization |
 
 ---
 
@@ -106,9 +121,16 @@ Technology choices and rationale for Scho1ar Backend.
 | Technology | Purpose | Status |
 |------------|---------|--------|
 | `aws-sdk-rust` | AWS API integration | Planned |
-| `jsonwebtoken` | JWT authentication | Planned |
-| `reqwest` | HTTP client for external APIs | Planned |
 | `redis` | Caching layer | Planned |
+| `validator` | Request payload validation | Planned |
+
+### Recently Implemented
+
+| Technology | Purpose | Implemented |
+|------------|---------|-------------|
+| `jsonwebtoken` | JWT authentication (Clerk) | 2026-01-20 |
+| `reqwest` | HTTP client (JWKS fetching) | 2026-01-20 |
+| `axum-extra` | Typed header extractors | 2026-01-20 |
 
 ---
 
