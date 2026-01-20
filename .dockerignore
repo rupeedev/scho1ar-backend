@@ -1,0 +1,35 @@
+# Build artifacts
+target/
+debug/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files (don't leak secrets)
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Claude config
+.claude/
+
+# Docker files (prevent recursion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Misc
+*.log
+.DS_Store

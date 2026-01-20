@@ -1,0 +1,41 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: scho1ar-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: scho1ar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scho1ar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Scho1ar Backend API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scho1ar-api
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@db:5432/scho1ar
+      HOST: 0.0.0.0
+      PORT: 3001
+      NODE_ENV: development
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      RUST_LOG: info,scho1ar_backend=debug
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
