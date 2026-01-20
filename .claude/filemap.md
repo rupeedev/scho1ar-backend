@@ -18,6 +18,8 @@ scho1ar-backend/
 │   ├── filemap.md              # This file
 │   ├── lessons-learned.md      # Critical incidents & solutions
 │   └── techstack.md            # Technology choices
+├── migrations/                 # SQLx database migrations
+│   └── YYYYMMDDHHMMSS_*.sql    # Timestamped migration files
 ├── src/                        # Source code
 │   ├── routes/                 # HTTP route handlers
 │   │   ├── mod.rs              # Router configuration

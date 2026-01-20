@@ -1,9 +1,6 @@
 pub mod health;
 
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::{routing::get, Router};
 
 use crate::AppState;
 

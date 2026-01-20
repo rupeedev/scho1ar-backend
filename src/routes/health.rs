@@ -10,7 +10,9 @@ pub struct HealthResponse {
     pub database: String,
 }
 
-pub async fn health_check(State(state): State<AppState>) -> Result<Json<HealthResponse>, StatusCode> {
+pub async fn health_check(
+    State(state): State<AppState>,
+) -> Result<Json<HealthResponse>, StatusCode> {
     // Check database connectivity
     let db_status = match sqlx::query("SELECT 1").fetch_one(&state.db).await {
         Ok(_) => "connected".to_string(),

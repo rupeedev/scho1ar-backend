@@ -41,6 +41,14 @@ cargo fmt                    # Format code
 # Database (PostgreSQL must be running)
 docker run -d --name scho1ar-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=scho1ar -p 5432:5432 postgres:16
 
+# SQLx Migrations
+sqlx migrate run              # Run pending migrations
+sqlx migrate revert           # Revert last migration
+sqlx migrate add <name>       # Create new migration file
+sqlx migrate info             # Show migration status
+cargo sqlx prepare            # Generate offline query data (for CI)
+cargo sqlx prepare --check    # Verify offline data is up-to-date
+
 # Background Server
 nohup ./target/release/scho1ar-backend > server.log 2>&1 &
 pkill scho1ar-backend        # Stop server
@@ -111,6 +119,7 @@ Use `AppResult<T>` as return type. Available error variants in `src/error.rs`:
 | `PORT` | No | `3001` | Server port |
 | `NODE_ENV` | No | `development` | Environment mode |
 | `CORS_ORIGINS` | No | `http://localhost:3000,http://localhost:5173` | Comma-separated allowed origins |
+| `SQLX_OFFLINE` | No | `false` | Enable offline mode for CI builds (requires `cargo sqlx prepare`) |
 
 ## Critical: CORS with Credentials
 
