@@ -33,7 +33,8 @@ scho1ar-backend/
 │   ├── lib.rs                  # Library root, AppState
 │   ├── config.rs               # Environment configuration (includes ClerkConfig)
 │   ├── db.rs                   # Database connection pool
-│   └── error.rs                # Error types
+│   ├── error.rs                # Error types
+│   └── validation.rs           # Request validation (ValidatedJson extractor)
 ├── target/                     # Build artifacts (git-ignored)
 ├── .env                        # Local environment (git-ignored)
 ├── .env.example                # Environment template

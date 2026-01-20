@@ -86,6 +86,7 @@ Technology choices and rationale for Scho1ar Backend.
 | `tracing` | Structured logging/diagnostics |
 | `tracing-subscriber` | Log formatting and filtering |
 | `once_cell` | Lazy static initialization |
+| `validator` | Request payload validation with derive macros |
 
 ---
 
