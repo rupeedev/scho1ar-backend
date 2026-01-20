@@ -7,6 +7,17 @@ pub struct Config {
     pub port: u16,
     pub cors_origins: Vec<String>,
     pub environment: String,
+    pub clerk: ClerkConfig,
+}
+
+#[derive(Debug, Clone)]
+pub struct ClerkConfig {
+    /// Clerk JWKS URL for fetching public keys
+    pub jwks_url: String,
+    /// Clerk issuer URL for JWT validation
+    pub issuer: String,
+    /// Expected audience (usually your frontend URL or Clerk app ID)
+    pub audience: Option<String>,
 }
 
 impl Config {
@@ -31,12 +42,28 @@ impl Config {
 
         let environment = env::var("NODE_ENV").unwrap_or_else(|_| "development".to_string());
 
+        // Clerk configuration
+        let clerk_issuer = env::var("CLERK_ISSUER")
+            .map_err(|_| ConfigError::Missing("CLERK_ISSUER".to_string()))?;
+
+        let clerk_jwks_url = env::var("CLERK_JWKS_URL")
+            .unwrap_or_else(|_| format!("{}/.well-known/jwks.json", clerk_issuer));
+
+        let clerk_audience = env::var("CLERK_AUDIENCE").ok();
+
+        let clerk = ClerkConfig {
+            jwks_url: clerk_jwks_url,
+            issuer: clerk_issuer,
+            audience: clerk_audience,
+        };
+
         Ok(Config {
             database_url,
             host,
             port,
             cors_origins,
             environment,
+            clerk,
         })
     }
 
